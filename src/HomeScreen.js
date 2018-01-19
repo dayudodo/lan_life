@@ -1,6 +1,22 @@
 import React, { Component } from "react";
-import { Button } from "react-native";
+import { Button, View } from "react-native";
 import Video from "react-native-video";
+import Sound from 'react-native-sound';
+
+Sound.setCategory("Playback");
+var first = new Sound("secret_garden_01.mp3", Sound.MAIN_BUNDLE, error => {
+  if (error) {
+    console.log("failed to load the sound", error);
+    return;
+  }
+  // loaded successfully
+  console.log(
+    "duration in seconds: " +
+      first.getDuration() +
+      "number of channels: " +
+      first.getNumberOfChannels()
+  );
+});
 
 export default class HomeScreen extends React.Component {
   static navigationOptions = { title: "Welcome" };
@@ -44,24 +60,6 @@ export default class HomeScreen extends React.Component {
         <Button
           title="Go to Jane's profile"
           onPress={() => navigate("Profile", { name: "Jane" })}
-        />
-        <Video
-          source={{ uri: soundUrl }}
-          ref={(ref: Video) => {
-            this.video = ref;
-          }}
-          rate={1.0}
-          volume={
-            1.0 // 0 is paused, 1 is normal.
-          }
-          muted={
-            false // 0 is muted, 1 is normal.
-          }
-          paused={
-            this.state.paused // Mutes the audio entirely.
-          }
-          onEnd={this.onEnd}
-          onLoad={this.onLoad}
         />
       </View>
     );
