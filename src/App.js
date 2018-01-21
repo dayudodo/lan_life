@@ -7,6 +7,7 @@
 import React, { Component } from 'react';
 import { StackNavigator, TabNavigator } from "react-navigation";
 import HomeScreen from './HomeScreen'
+import SecondLevel from './SecondLevel'
 
 import {
   Platform,

@@ -6,7 +6,9 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  TouchableHighlight
+  TouchableHighlight,
+  TouchableWithoutFeedback,
+  Image
 } from "react-native";
 import Video from "react-native-video";
 import Sound from "react-native-sound";
@@ -26,12 +28,14 @@ for (let index = 1; index <= courses_max; index++) {
 }
 
 export default class HomeScreen extends React.Component {
-  static navigationOptions = { title: "Welcome" };
+  static navigationOptions = { title: "选择课程" };
   constructor(props) {
     super(props);
     this.state = {
       paused: true,
-      currentTime: 0.0
+      currentTime: 0.0,
+      current_media_name: null,
+
     }; //因为上一次的图片没有变化，所以有时候图片的onLoad并不会执行！
   }
   playmp3() {
@@ -72,6 +76,7 @@ export default class HomeScreen extends React.Component {
             if (current_media) {
               current_media.release();
             }
+            this.setState({current_media_name: media_name})
             current_media = new Sound(media_name, Sound.MAIN_BUNDLE, error => {
               if (error) {
                 console.log("failed to load the sound", error);
@@ -106,7 +111,9 @@ export default class HomeScreen extends React.Component {
     return (
       <View style={styles.container}>
         <Button title="play" onPress={this.playmp3} />
+        <Text style={styles.mediaName}>{this.state.current_media_name}</Text>
         <FlatList data={course_names} renderItem={this._renderItem} />
+        
       </View>
     );
   }
@@ -125,5 +132,8 @@ const styles = StyleSheet.create({
     fontSize: 18,
     height: 44,
     color: "green"
-  }
+  },
+  mediaName:{
+    alignSelf: 'center',
+  },
 });
