@@ -4,20 +4,14 @@
  * @flow
  */
 
-import React, { Component } from 'react';
+import React, { Component } from "react";
 import { StackNavigator, TabNavigator } from "react-navigation";
-import HomeScreen from './HomeScreen'
-import SecondLevel from './SecondLevel'
+import HomeScreen from "./HomeScreen";
+import SecondLevel from "./SecondLevel";
 
-import {
-  Platform,
-  StyleSheet,
-  Text,
-  View
-} from 'react-native';
+import { Platform, StyleSheet, Text, View } from "react-native";
 
 export const App = StackNavigator({
-  Home: { screen: HomeScreen },
-  
+  HomeScreen: { screen: HomeScreen },
+  SecondLevel: { screen: SecondLevel }
 });
-

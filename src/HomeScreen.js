@@ -12,10 +12,11 @@ import {
 } from "react-native";
 import Video from "react-native-video";
 import Sound from "react-native-sound";
+// import SecondLevel from "./SecondLevel"
 
 var courses_max = 19;
-var course_names = [];
-var current_media;
+var g_course_names = [];
+var g_current_media;
 Sound.setCategory("Playback");
 for (let index = 1; index <= courses_max; index++) {
   var double_name;
@@ -24,7 +25,7 @@ for (let index = 1; index <= courses_max; index++) {
   } else {
     double_name = `${index}`;
   }
-  course_names.push({ key: `secret_garden_${double_name}.mp3` });
+  g_course_names.push({ key: `secret_garden_${double_name}.mp3` });
 }
 
 export default class HomeScreen extends React.Component {
@@ -34,8 +35,7 @@ export default class HomeScreen extends React.Component {
     this.state = {
       paused: true,
       currentTime: 0.0,
-      current_media_name: null,
-
+      current_media_name: null
     }; //因为上一次的图片没有变化，所以有时候图片的onLoad并不会执行！
   }
   playmp3() {
@@ -64,7 +64,8 @@ export default class HomeScreen extends React.Component {
     });
   }
   _renderItem = oneItem => {
-    console.dir(oneItem);
+    const { navigate } = this.props.navigation;
+    // console.dir(oneItem);
     let media_name = oneItem.item.key;
     return (
       <View style={styles.listBack}>
@@ -73,38 +74,51 @@ export default class HomeScreen extends React.Component {
           title={media_name}
           onPress={() => {
             console.log(media_name);
-            if (current_media) {
-              current_media.release();
+            if (g_current_media) {
+              g_current_media.release();
             }
-            this.setState({current_media_name: media_name})
-            current_media = new Sound(media_name, Sound.MAIN_BUNDLE, error => {
-              if (error) {
-                console.log("failed to load the sound", error);
-                return;
-              }
-              // loaded successfully
-              console.log(
-                "duration in seconds: " +
-                  current_media.getDuration() +
-                  "number of channels: " +
-                  current_media.getNumberOfChannels()
-              );
-              current_media.play(success => {
-                if (success) {
-                  console.log("successfully finished playing");
-                } else {
-                  console.log("playback failed due to audio decoding errors");
-                  // reset the player to its uninitialized state (android only)
-                  // this is the only option to recover after an error occured and use the player again
-                  current_media.reset();
+            this.setState({ current_media_name: media_name });
+            g_current_media = new Sound(
+              media_name,
+              Sound.MAIN_BUNDLE,
+              error => {
+                if (error) {
+                  console.log("failed to load the sound", error);
+                  return;
                 }
-              });
+                // loaded successfully
+                console.log(
+                  "duration in seconds: " +
+                    g_current_media.getDuration() +
+                    "number of channels: " +
+                    g_current_media.getNumberOfChannels()
+                );
+                g_current_media.play(success => {
+                  if (success) {
+                    console.log("successfully finished playing");
+                  } else {
+                    console.log("playback failed due to audio decoding errors");
+                    // reset the player to its uninitialized state (android only)
+                    // this is the only option to recover after an error occured and use the player again
+                    g_current_media.reset();
+                  }
+                });
+              }
+            );
+
+            navigate("SecondLevel", {
+              title: media_name,
             });
           }}
         />
       </View>
     );
   };
+  componentWillUnmount() {
+    if (g_current_media) {
+      g_current_media.release();
+    }
+  }
   render() {
     const { navigate } = this.props.navigation;
     const soundUrl = "";
@@ -112,8 +126,7 @@ export default class HomeScreen extends React.Component {
       <View style={styles.container}>
         <Button title="play" onPress={this.playmp3} />
         <Text style={styles.mediaName}>{this.state.current_media_name}</Text>
-        <FlatList data={course_names} renderItem={this._renderItem} />
-        
+        <FlatList data={g_course_names} renderItem={this._renderItem} />
       </View>
     );
   }
@@ -133,7 +146,7 @@ const styles = StyleSheet.create({
     height: 44,
     color: "green"
   },
-  mediaName:{
-    alignSelf: 'center',
-  },
+  mediaName: {
+    alignSelf: "center"
+  }
 });
