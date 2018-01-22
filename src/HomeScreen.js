@@ -8,8 +8,10 @@ import {
   TouchableOpacity,
   TouchableHighlight,
   TouchableWithoutFeedback,
-  Image
+  Image,
+  ListView
 } from "react-native";
+import { List, ListItem } from "react-native-elements";
 import Video from "react-native-video";
 import Sound from "react-native-sound";
 // import SecondLevel from "./SecondLevel"
@@ -18,18 +20,21 @@ var courses_max = 19;
 var g_course_names = [];
 var g_current_media;
 Sound.setCategory("Playback");
-for (let index = 1; index <= courses_max; index++) {
+for (let index = 0; index < courses_max; index++) {
   var double_name;
-  if (index < 10) {
-    double_name = `0${index}`;
+  if (index < 9) {
+    double_name = `0${index+1}`;
   } else {
-    double_name = `${index}`;
+    double_name = `${index+1}`;
   }
-  g_course_names.push({ key: `secret_garden_${double_name}.mp3` });
+  g_course_names.push({
+    key: `secret_garden_${double_name}.mp3`,
+    index: index
+  });
 }
 
 export default class HomeScreen extends React.Component {
-  static navigationOptions = { title: "选择课程" };
+  // static navigationOptions = { title: "选择课程" };
   constructor(props) {
     super(props);
     this.state = {
@@ -63,13 +68,13 @@ export default class HomeScreen extends React.Component {
       }
     });
   }
-  _renderItem = oneItem => {
+  _renderItem = ({item}) => {
     const { navigate } = this.props.navigation;
     // console.dir(oneItem);
-    let media_name = oneItem.item.key;
+    let media_name = item.key;
     return (
       <View style={styles.listBack}>
-        <Button
+        <ListItem
           style={styles.item}
           title={media_name}
           onPress={() => {
@@ -105,10 +110,7 @@ export default class HomeScreen extends React.Component {
                 });
               }
             );
-
-            navigate("SecondLevel", {
-              title: media_name,
-            });
+            navigate("SecondLevel", { title: media_name, index: item.index });
           }}
         />
       </View>
@@ -124,9 +126,9 @@ export default class HomeScreen extends React.Component {
     const soundUrl = "";
     return (
       <View style={styles.container}>
-        <Button title="play" onPress={this.playmp3} />
-        <Text style={styles.mediaName}>{this.state.current_media_name}</Text>
-        <FlatList data={g_course_names} renderItem={this._renderItem} />
+        <List>
+          <FlatList data={g_course_names} renderItem={this._renderItem} />
+        </List>
       </View>
     );
   }
@@ -135,16 +137,16 @@ export default class HomeScreen extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    flexDirection: "column"
+    flexDirection: "column",
+    // justifyContent: 'center',
     // alignItems: "center"
   },
   listBack: {
-    backgroundColor: "yellow"
+    // backgroundColor: "black"
   },
   item: {
     fontSize: 18,
-    height: 44,
-    color: "green"
+    height: 44
   },
   mediaName: {
     alignSelf: "center"

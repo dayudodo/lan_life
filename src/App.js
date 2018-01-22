@@ -12,6 +12,11 @@ import SecondLevel from "./SecondLevel";
 import { Platform, StyleSheet, Text, View } from "react-native";
 
 export const App = StackNavigator({
-  HomeScreen: { screen: HomeScreen },
+  HomeScreen: {
+    screen: HomeScreen,
+    navigationOptions: {
+      headerTitle: "选择课程"
+    },
+  },
   SecondLevel: { screen: SecondLevel }
 });

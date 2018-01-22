@@ -13,7 +13,10 @@ import {
 import { Divider } from "react-native-elements";
 import Video from "react-native-video";
 import Sound from "react-native-sound";
-import { content } from "../media/secret_garden/01";
+// import { content } from "../media/secret_garden/01";
+import { srtArr} from "../media/secret_garden/srts";
+console.log("allsrts", srtArr);
+
 // var RNFS = require("react-native-fs");
 // console.log(content);
 var srt = require("./srt").fromString;
@@ -34,6 +37,12 @@ export default class SecondLevel extends React.Component {
     <Text>{item.english}</Text>;
   };
   render() {
+    const { params } = this.props.navigation.state;
+    let content = srtArr[params.index]
+    console.log(params.index, content);
+    
+    // eval(`content = sg01.content`);
+    // let content = sg01.content
     let data = srt(content);
     for (let index in data) {
       // data[index]["english"]= data[index].text.split('\n')[0]
@@ -59,7 +68,7 @@ export default class SecondLevel extends React.Component {
               <Text
                 style={styles.item}
                 onPress={() => {
-                  console.log(item.startTime,item.endTime);
+                  console.log(item.startTime, item.endTime);
                 }}
               >
                 {item.english}
@@ -83,7 +92,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     height: 44
   },
-  lineView:{
-    margin: 5,
+  lineView: {
+    margin: 5
   }
 });

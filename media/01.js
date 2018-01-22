@@ -1,4 +1,4 @@
-export const content=`1
+export const content=`﻿1
 00:00:09,507 --> 00:00:12,599
 Bedtime Reading
 

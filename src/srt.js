@@ -7,8 +7,7 @@ srt.fromString = fromString;
 
 module.exports = srt;
 
-function srt(fileName, callback) {
-}
+function srt() {}
 
 function returnParsedData(callback, err, data) {
   if (err) {
