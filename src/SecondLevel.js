@@ -15,7 +15,7 @@ import Video from "react-native-video";
 import Sound from "react-native-sound";
 // import { content } from "../media/secret_garden/01";
 import { srtArr} from "../media/secret_garden/srts";
-console.log("allsrts", srtArr);
+// console.log("allsrts", srtArr);
 
 // var RNFS = require("react-native-fs");
 // console.log(content);
