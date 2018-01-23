@@ -6,14 +6,14 @@
 
 import React, { Component } from "react";
 import { StackNavigator, TabNavigator } from "react-navigation";
-import HomeScreen from "./HomeScreen";
+import CoursesScreen from "./CoursesScreen";
 import SecondLevel from "./SecondLevel";
 
 import { Platform, StyleSheet, Text, View } from "react-native";
 
 export const App = StackNavigator({
-  HomeScreen: {
-    screen: HomeScreen,
+  CoursesScreen: {
+    screen: CoursesScreen,
     navigationOptions: {
       headerTitle: "选择课程"
     },

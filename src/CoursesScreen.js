@@ -13,13 +13,11 @@ import {
 } from "react-native";
 import { List, ListItem } from "react-native-elements";
 import Video from "react-native-video";
-import Sound from "react-native-sound";
 // import SecondLevel from "./SecondLevel"
 
 var courses_max = 19;
 var g_course_names = [];
 var g_current_media;
-Sound.setCategory("Playback");
 for (let index = 0; index < courses_max; index++) {
   var double_name;
   if (index < 9) {
@@ -78,38 +76,6 @@ export default class HomeScreen extends React.Component {
           style={styles.item}
           title={media_name}
           onPress={() => {
-            console.log(media_name);
-            if (g_current_media) {
-              g_current_media.release();
-            }
-            this.setState({ current_media_name: media_name });
-            g_current_media = new Sound(
-              media_name,
-              Sound.MAIN_BUNDLE,
-              error => {
-                if (error) {
-                  console.log("failed to load the sound", error);
-                  return;
-                }
-                // loaded successfully
-                console.log(
-                  "duration in seconds: " +
-                    g_current_media.getDuration() +
-                    "number of channels: " +
-                    g_current_media.getNumberOfChannels()
-                );
-                g_current_media.play(success => {
-                  if (success) {
-                    console.log("successfully finished playing");
-                  } else {
-                    console.log("playback failed due to audio decoding errors");
-                    // reset the player to its uninitialized state (android only)
-                    // this is the only option to recover after an error occured and use the player again
-                    g_current_media.reset();
-                  }
-                });
-              }
-            );
             navigate("SecondLevel", { title: media_name, index: item.index });
           }}
         />
@@ -126,9 +92,7 @@ export default class HomeScreen extends React.Component {
     const soundUrl = "";
     return (
       <View style={styles.container}>
-        <List>
           <FlatList data={g_course_names} renderItem={this._renderItem} />
-        </List>
       </View>
     );
   }
@@ -141,8 +105,8 @@ const styles = StyleSheet.create({
     // justifyContent: 'center',
     // alignItems: "center"
   },
-  listBack: {
-    // backgroundColor: "black"
+  coursesList:{
+    marginBottom: 20,
   },
   item: {
     fontSize: 18,
