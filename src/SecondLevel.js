@@ -35,9 +35,11 @@ export default class SecondLevel extends React.Component {
   };
   constructor(props) {
     super(props);
-    this.state = { current_media_name: null };
+    this.state = { current_media_name: null, clicked_index: null };
   }
   _oneLinePress(item) {
+    // console.log(item);
+
     const { params } = this.props.navigation.state;
     let media_name = params.title;
     console.log(item.startTime, item.endTime);
@@ -109,6 +111,8 @@ export default class SecondLevel extends React.Component {
       initRepeatTimes();
       playTimes();
     }
+    //item.number是从1开始的！
+    this.setState({ clicked_index: item.number });
   }
   componentWillUnmount() {
     //组件退出的时候释放资源，包括定时器
@@ -139,6 +143,7 @@ export default class SecondLevel extends React.Component {
       result = result.concat(data[index]);
     }
     // console.log(result);
+
     return (
       <FlatList
         style={styles.container}
@@ -148,7 +153,11 @@ export default class SecondLevel extends React.Component {
           return (
             <View style={styles.lineView}>
               <Text
-                style={styles.item}
+                style={
+                  item.number == this.state.clicked_index
+                    ? [styles.item, styles.yellowBack]
+                    : styles.item
+                }
                 onPress={this._oneLinePress.bind(this, item)}
               >
                 {item.english}
@@ -170,9 +179,12 @@ const styles = StyleSheet.create({
   },
   item: {
     fontSize: 18,
-    height: 44
+    minHeight: 44
   },
   lineView: {
     margin: 5
+  },
+  yellowBack: {
+    backgroundColor: "yellow"
   }
 });
