@@ -98,6 +98,7 @@ export default class SecondLevel extends React.Component {
       }, 10);
       playFrontStart();
     };
+
     if (!g_current_media) {
       g_current_media = new Sound(media_name, Sound.MAIN_BUNDLE, error => {
         if (error) {
@@ -114,6 +115,7 @@ export default class SecondLevel extends React.Component {
     //item.number是从1开始的！
     this.setState({ clicked_index: item.number });
   }
+
   componentWillUnmount() {
     //组件退出的时候释放资源，包括定时器
     // console.log("componentWillUnmount");
@@ -152,17 +154,17 @@ export default class SecondLevel extends React.Component {
           // console.log(item);
           return (
             <View style={styles.lineView}>
-              <Text
-                style={
-                  item.number == this.state.clicked_index
-                    ? [styles.item, styles.yellowBack]
-                    : styles.item
-                }
-                onPress={this._oneLinePress.bind(this, item)}
-              >
-                {item.english}
-              </Text>
-              <Divider style={{ backgroundColor: "blue" }} />
+                <Text
+                  style={
+                    item.number == this.state.clicked_index
+                      ? [styles.item, styles.yellowBack]
+                      : styles.item
+                  }
+                  onPress={this._oneLinePress.bind(this, item)}
+                >
+                  {item.number}=>{item.english}
+                </Text>
+                <Divider style={{ backgroundColor: "blue" }} />
             </View>
           );
         }}
