@@ -45,27 +45,18 @@ export default class SecondLevel extends React.Component {
     console.log(item.startTime, item.endTime);
 
     let [start, end] = [item.startTime / 1000, item.endTime / 1000];
-    let _repeatTimes;
     console.log(start, end);
 
-    initRepeatTimes = () => {
-      _repeatTimes = 2;
-      if (G_repeat_times) {
-        _repeatTimes = G_repeat_times;
-      }
+    let initRepeatTimes = () => {
+      G_repeat_times = 2;
       //计时器，如果有这个计时器就取消掉，免得会有其它问题，另外，貌似在react里面需要使用clearTimeout, 而不是clearInterval?
       //只要点击就得清除，因为可能是点击其它句子了！
       this.timer && clearInterval(this.timer);
       this.timer = null;
     };
-    initRepeatTimes();
 
-    playTimes = () => {
-      if (!g_current_media) {
-        console.log("错误：g_current_media未初始化");
-        return;
-      }
-      const playFrontStart = () => {
+    let playTimes = () => {
+      let playFrontStart = () => {
         g_current_media.setCurrentTime(start);
         //设置好时间后再去播放，不然异步的话始终会从头放，引起N多问题，这与html不同。
         g_current_media.play(success => {
@@ -79,23 +70,30 @@ export default class SecondLevel extends React.Component {
           }
         });
       };
-      this.timer = setInterval(() => {
-        g_current_media.getCurrentTime(_currentTime => {
-          if (_currentTime >= end) {
-            console.log(`end: currentTime: ${_currentTime}`);
-            _repeatTimes -= 1;
-            if (_repeatTimes === 0) {
-              console.log("clearInterval");
-              this.timer && clearInterval(this.timer);
-              this.timer = null;
-              g_current_media.pause();
-            } else {
-              console.log(`setCurrentTime: ${start}`);
-              playFrontStart();
+      if (!g_current_media) {
+        console.log("错误：g_current_media未初始化");
+        return;
+      }
+      //判断一下timer, 没有再去赋值，不然会有N多的timer, 应该保证单例timer!
+      if (!this.timer) {
+        this.timer = setInterval(() => {
+          g_current_media.getCurrentTime(_currentTime => {
+            if (_currentTime >= end) {
+              console.log(`end: currentTime: ${_currentTime}`);
+              G_repeat_times -= 1;
+              if (G_repeat_times === 0) {
+                console.log("clearInterval");
+                this.timer && clearInterval(this.timer);
+                this.timer = null;
+                g_current_media.pause();
+              } else {
+                console.log(`setCurrentTime: ${start}`);
+                playFrontStart();
+              }
             }
-          }
-        });
-      }, 10);
+          });
+        }, 10);
+      }
       playFrontStart();
     };
 
@@ -105,6 +103,7 @@ export default class SecondLevel extends React.Component {
           console.log(`failed to load the ${media_name}`, error);
           return;
         }
+        initRepeatTimes();
         playTimes();
       });
     } else {
@@ -154,17 +153,17 @@ export default class SecondLevel extends React.Component {
           // console.log(item);
           return (
             <View style={styles.lineView}>
-                <Text
-                  style={
-                    item.number == this.state.clicked_index
-                      ? [styles.item, styles.yellowBack]
-                      : styles.item
-                  }
-                  onPress={this._oneLinePress.bind(this, item)}
-                >
-                  {item.number}=>{item.english}
-                </Text>
-                <Divider style={{ backgroundColor: "blue" }} />
+              <Text
+                style={
+                  item.number == this.state.clicked_index
+                    ? [styles.item, styles.yellowBack]
+                    : styles.item
+                }
+                onPress={this._oneLinePress.bind(this, item)}
+              >
+                {item.english}
+              </Text>
+              <Divider style={{ backgroundColor: "blue" }} />
             </View>
           );
         }}
