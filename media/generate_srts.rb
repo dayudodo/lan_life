@@ -17,7 +17,7 @@ result = %Q`#{imps.join}
 const srtArr = [
   #{arrs.join(",\n  ")}
 ]
-export {srtArr}
+export default srtArr
 `
 
 dest_name = File.join(directory, 'srts.js')

@@ -39,4 +39,4 @@ const srtArr = [
   secret_garden18.content,
   secret_garden19.content
 ]
-export {srtArr}
+export default srtArr

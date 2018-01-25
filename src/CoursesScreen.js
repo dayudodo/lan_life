@@ -26,7 +26,7 @@ for (let index = 0; index < courses_max; index++) {
     double_name = `${index+1}`;
   }
   g_course_names.push({
-    key: `secret_garden_${double_name}.mp3`,
+    key: `secret_garden_${double_name}`,
     index: index
   });
 }
