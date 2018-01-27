@@ -1,0 +1,1 @@
+#运行这个：  ruby ~/trans2017/script/compressM4a.rb

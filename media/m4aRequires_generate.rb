@@ -5,7 +5,7 @@
 # }
 directory = "secret_garden"
 prefix = directory
-dir_name = "#{directory}/*.mp3"
+dir_name = "#{directory}/*.m4a"
 
 mp3Files =  Dir.glob(dir_name)
 arrs = []
@@ -13,17 +13,17 @@ arrs = []
 mp3Files.each do |f|
     pure_name = File.basename(f,'.*')
     # puts pure_name
-    arrs << %Q`#{directory}_#{pure_name}: require('./#{pure_name}.mp3')`
+    arrs << %Q`#{directory}_#{pure_name}: require('./#{pure_name}.m4a')`
 end
 
 # puts arrs
-result = %Q`const mp3Requires = {
+result = %Q`const m4aRequires = {
   #{arrs.join(",\n  ")}
 };
-export default mp3Requires;
+export default m4aRequires;
 `
 puts result
-dest_name = File.join(directory, 'mp3Requires.js')
+dest_name = File.join(directory, 'm4aRequires.js')
 File.open(dest_name, 'w') do |f|
     puts "write to #{dest_name} ..."
     f.write(result)
