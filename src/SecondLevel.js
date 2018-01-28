@@ -8,8 +8,7 @@ import {
   TouchableOpacity,
   TouchableHighlight,
   TouchableWithoutFeedback,
-  Image,
-  Animated
+  Image
 } from "react-native";
 import { Divider } from "react-native-elements";
 import Video from "react-native-video";
@@ -21,10 +20,10 @@ import m4aRequires from "../media/secret_garden/m4aRequires";
 
 // var RNFS = require("react-native-fs");
 // console.log(content);
-let G_repeat_times;
+let G_repeat_times = 2;
 let g_media_name, currentSrtArray, current_mp3;
-var start = 0;
-var end = 1000000;
+var mediaStartTime = 0;
+var mediaEndTime = 1000000;
 const freeze_at_end = true; //播放完成后，画面停在end
 var srt = require("./srt").fromString;
 
@@ -65,10 +64,10 @@ export default class SecondLevel extends React.Component {
       current_media_name: null,
       clicked_index: null,
       currentTime: null,
-      paused: false,
-      backStyle: new Animated.Value(styles.item)
+      paused: true
     };
   }
+  _repeat_times = G_repeat_times;
   _onLoad = data => {
     console.log("duration:", data.duration);
   };
@@ -77,9 +76,15 @@ export default class SecondLevel extends React.Component {
   //   this.video.seek(0);
   // };
   _onProgress = data => {
-    if (data.currentTime >= end) {
-      console.log("endTime: ", data.currentTime);
-      this.setState({ paused: true });
+    if (data.currentTime >= mediaEndTime) {
+      console.log("mediaEndTimeTime: ", data.currentTime);
+      --this._repeat_times;
+      if (this._repeat_times > 0) {
+        this.video.seek(mediaStartTime); //回到开始播放的时间！
+      } else {
+        this.setState({ paused: true });
+        this._repeat_times = G_repeat_times;
+      }
     }
   };
   _onError = error => {
@@ -87,25 +92,20 @@ export default class SecondLevel extends React.Component {
   };
 
   _oneLinePress(item) {
-    // console.log(item);
-
-    [start, end] = [item.startTime / 1000, item.endTime / 1000];
-    console.log("start,end: ", start, end);
+    [mediaStartTime, mediaEndTime] = [item.startTime / 1000, item.endTime / 1000];
+    console.log("mediaStartTime,mediaEndTime: ", mediaStartTime, mediaEndTime);
 
     //item.number是从1开始的！
     console.log("item.number", item.number);
-     this.setState({ clicked_index: item.number });
-
-    // this.video.seek(start);
-
-    // this.setState({ clicked_index: item.number }, () => {
-    //   this.setState({ paused: false });
-    // });
-    //因为这儿有setstate， 所以下面isClickedIndex会被重新判断执行。
+    //有了video里面的onpress方法，就得把重复次数写成全局的。
+    this._repeat_times = G_repeat_times;
+    this.setState({ paused: false }, () => {
+      this.video.seek(mediaStartTime);
+    });
   }
-  shouldComponentUpdate(nextProps, nextState) {
-    return true
-  }
+  // shouldComponentUpdate(nextProps, nextState) {
+  //   return true
+  // }
 
   componentWillUnmount() {
     //组件退出的时候释放资源，包括定时器
@@ -124,22 +124,10 @@ export default class SecondLevel extends React.Component {
         <FlatList
           data={currentSrtArray}
           renderItem={({ item }) => {
-            // console.log(item);
-            const isCurrentIndexClicked =
-              item.number == this.state.clicked_index;
-            console.log(item.number, this.state.clicked_index);
-
-            if (isCurrentIndexClicked) {
-              console.log(item);
-            }
             return (
               <View style={styles.lineView}>
                 <Text
-                  style={
-                    isCurrentIndexClicked
-                      ? [styles.item, styles.yellowBack]
-                      : styles.item
-                  }
+                  style={styles.item}
                   onPress={this._oneLinePress.bind(this, item)}
                 >
                   {item.number}: {item.english}
@@ -150,7 +138,7 @@ export default class SecondLevel extends React.Component {
           }}
           keyExtractor={(item, index) => index}
         />
-        {/* <Video
+        <Video
           source={
             current_mp3 // source={{ uri: soundUrl }}
           }
@@ -166,7 +154,7 @@ export default class SecondLevel extends React.Component {
           onLoad={this._onLoad}
           onProgress={this._onProgress}
           onError={this._onError}
-        /> */}
+        />
       </View>
     );
   }
