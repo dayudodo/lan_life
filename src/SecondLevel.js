@@ -10,6 +10,8 @@ import {
   TouchableWithoutFeedback,
   Image
 } from "react-native";
+// import ReactNativeComponentTree from "react-native/Libraries/Renderer/src/renderers/native/ReactNativeComponentTree";
+import ReactNativeComponentTree from "react-native/Libraries/Renderer/shims/ReactNativeComponentTree";
 import { Divider } from "react-native-elements";
 import Video from "react-native-video";
 import Sound from "react-native-sound";
@@ -68,6 +70,7 @@ export default class SecondLevel extends React.Component {
     };
   }
   _repeat_times = G_repeat_times;
+  _clicked_array = [null, null];
   _onLoad = data => {
     console.log("duration:", data.duration);
   };
@@ -91,14 +94,32 @@ export default class SecondLevel extends React.Component {
     console.log(error);
   };
 
-  _oneLinePress(item) {
-    [mediaStartTime, mediaEndTime] = [item.startTime / 1000, item.endTime / 1000];
+  _oneLinePress(item, e) {
+    // let text = ReactNativeComponentTree.getInstanceFromNode(e.target);
+    // text.memoizedProps.style = styles.yellowBack
+    // console.log(item, text);
+    // return;
+    [mediaStartTime, mediaEndTime] = [
+      item.startTime / 1000,
+      item.endTime / 1000
+    ];
     console.log("mediaStartTime,mediaEndTime: ", mediaStartTime, mediaEndTime);
 
     //item.number是从1开始的！
     console.log("item.number", item.number);
     //有了video里面的onpress方法，就得把重复次数写成全局的。
     this._repeat_times = G_repeat_times;
+    // console.log(`text${item.number}`, this.textRef);
+    this._clicked_array.push(item.number);
+    this._clicked_array.shift();
+    if (this._clicked_array[0]) {
+      this.textRef[this._clicked_array[0]].setNativeProps({
+        style: styles.normalBack
+      });
+    }
+    this.textRef[this._clicked_array[1]].setNativeProps({
+      style: styles.clickedBack
+    });
     this.setState({ paused: false }, () => {
       this.video.seek(mediaStartTime);
     });
@@ -106,7 +127,11 @@ export default class SecondLevel extends React.Component {
   // shouldComponentUpdate(nextProps, nextState) {
   //   return true
   // }
-
+  componentDidMount() {
+    this.props.navigation.setParams({
+      tabBarVisible: false
+    });
+  }
   componentWillUnmount() {
     //组件退出的时候释放资源，包括定时器
     // console.log("componentWillUnmount");
@@ -122,20 +147,23 @@ export default class SecondLevel extends React.Component {
           {this.state.currentTime ? this.state.currentTime : "当前播放时间"}
         </Text>
         <FlatList
+          ref={"textList"}
           data={currentSrtArray}
-          renderItem={({ item }) => {
-            return (
-              <View style={styles.lineView}>
-                <Text
-                  style={styles.item}
-                  onPress={this._oneLinePress.bind(this, item)}
-                >
-                  {item.number}: {item.english}
-                </Text>
-                <Divider style={{ backgroundColor: "blue" }} />
-              </View>
-            );
-          }}
+          renderItem={({ item }) => (
+            <View>
+              <Text
+                style={styles.item}
+                selectable={true}
+                ref={ref =>
+                  (this.textRef = { ...this.textRef, [`${item.number}`]: ref })
+                }
+                onPress={e => this._oneLinePress(item, e)}
+              >
+                {item.number}: {item.english}
+              </Text>
+              <Divider style={{ backgroundColor: "blue" }} />
+            </View>
+          )}
           keyExtractor={(item, index) => index}
         />
         <Video
@@ -172,7 +200,10 @@ const styles = StyleSheet.create({
   lineView: {
     margin: 5
   },
-  yellowBack: {
+  clickedBack: {
     backgroundColor: "yellow"
+  },
+  normalBack: {
+    backgroundColor: "white"
   }
 });

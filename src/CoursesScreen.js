@@ -21,9 +21,9 @@ var g_current_media;
 for (let index = 0; index < courses_max; index++) {
   var double_name;
   if (index < 9) {
-    double_name = `0${index+1}`;
+    double_name = `0${index + 1}`;
   } else {
-    double_name = `${index+1}`;
+    double_name = `${index + 1}`;
   }
   g_course_names.push({
     key: `secret_garden_${double_name}`,
@@ -32,14 +32,10 @@ for (let index = 0; index < courses_max; index++) {
 }
 
 export default class HomeScreen extends React.Component {
-  // static navigationOptions = { title: "选择课程" };
+
   constructor(props) {
     super(props);
-    this.state = {
-      paused: true,
-      currentTime: 0.0,
-      current_media_name: null
-    }; //因为上一次的图片没有变化，所以有时候图片的onLoad并不会执行！
+    this.state = { paused: true, currentTime: 0.0, current_media_name: null }; //因为上一次的图片没有变化，所以有时候图片的onLoad并不会执行！
   }
   playmp3() {
     var first = new Sound("secret_garden_01.mp3", Sound.MAIN_BUNDLE, error => {
@@ -66,7 +62,7 @@ export default class HomeScreen extends React.Component {
       }
     });
   }
-  _renderItem = ({item}) => {
+  _renderItem = ({ item }) => {
     const { navigate } = this.props.navigation;
     // console.dir(oneItem);
     let media_name = item.key;
@@ -76,12 +72,16 @@ export default class HomeScreen extends React.Component {
           style={styles.item}
           title={media_name}
           onPress={() => {
-            navigate("SecondLevel", { title: media_name, index: item.index });
+            navigate("SecondLevel", {
+              title: media_name,
+              index: item.index
+            });
           }}
         />
       </View>
     );
   };
+
   componentWillUnmount() {
     if (g_current_media) {
       g_current_media.release();
@@ -92,7 +92,7 @@ export default class HomeScreen extends React.Component {
     const soundUrl = "";
     return (
       <View style={styles.container}>
-          <FlatList data={g_course_names} renderItem={this._renderItem} />
+        <FlatList data={g_course_names} renderItem={this._renderItem} />
       </View>
     );
   }
@@ -101,12 +101,12 @@ export default class HomeScreen extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    flexDirection: "column",
+    flexDirection: "column"
     // justifyContent: 'center',
     // alignItems: "center"
   },
-  coursesList:{
-    marginBottom: 20,
+  coursesList: {
+    marginBottom: 20
   },
   item: {
     fontSize: 18,
