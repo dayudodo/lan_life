@@ -22,7 +22,7 @@ import m4aRequires from "../media/secret_garden/m4aRequires";
 
 // var RNFS = require("react-native-fs");
 // console.log(content);
-global.g_repeat_time = 2;
+
 let g_media_name, currentSrtArray, current_mp3;
 var mediaStartTime = 0;
 var mediaEndTime = 1000000;
@@ -69,7 +69,7 @@ export default class SecondLevel extends React.Component {
       paused: true
     };
   }
-  _repeat_times = global.g_repeat_time;
+  _repeat_times = global.SettingsStore.g_repeat_time;
   _clicked_array = [null, null];
   _onLoad = data => {
     console.log("duration:", data.duration);
@@ -86,7 +86,7 @@ export default class SecondLevel extends React.Component {
         this.video.seek(mediaStartTime); //回到开始播放的时间！
       } else {
         this.setState({ paused: true });
-        this._repeat_times = global.g_repeat_time;
+        this._repeat_times = global.SettingsStore.g_repeat_time;
       }
     }
   };
@@ -108,7 +108,7 @@ export default class SecondLevel extends React.Component {
     //item.number是从1开始的！
     console.log("item.number", item.number);
     //有了video里面的onpress方法，就得把重复次数写成全局的。
-    this._repeat_times = global.g_repeat_time;
+    this._repeat_times = global.SettingsStore.g_repeat_time;
     // console.log(`text${item.number}`, this.textRef);
     this._clicked_array.push(item.number);
     this._clicked_array.shift();
@@ -143,9 +143,7 @@ export default class SecondLevel extends React.Component {
   render() {
     return (
       <View style={styles.container}>
-        <Text>
-          {this.state.currentTime ? this.state.currentTime : "当前播放时间"}
-        </Text>
+        <Text>{global.SettingsStore.g_repeat_time}</Text>x
         <FlatList
           ref={"textList"}
           data={currentSrtArray}
@@ -195,7 +193,7 @@ const styles = StyleSheet.create({
   },
   item: {
     fontSize: 18,
-    minHeight: 44
+    minHeight: 50,
   },
   lineView: {
     margin: 5
