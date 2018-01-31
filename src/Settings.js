@@ -14,7 +14,7 @@ import {
 } from "react-native";
 import { Divider } from "react-native-elements";
 
-import { observable, action } from "mobx";
+// import { observable } from "mobx";
 import { observer } from "mobx-react";
 import SettingsStore from "./SettingsStoreObservable";
 

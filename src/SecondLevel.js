@@ -8,13 +8,15 @@ import {
   TouchableOpacity,
   TouchableHighlight,
   TouchableWithoutFeedback,
-  Image
+  Image,
+  Modal,
+  Slider,
+  Switch
 } from "react-native";
-// import ReactNativeComponentTree from "react-native/Libraries/Renderer/src/renderers/native/ReactNativeComponentTree";
-import ReactNativeComponentTree from "react-native/Libraries/Renderer/shims/ReactNativeComponentTree";
 import { Divider } from "react-native-elements";
 import Video from "react-native-video";
 import Sound from "react-native-sound";
+import Icon from "react-native-vector-icons/FontAwesome";
 // Sound.setCategory("Playback");
 // import { content } from "../media/secret_garden/01";
 import srtObjects from "../media/secret_garden/srts";
@@ -22,7 +24,8 @@ import m4aRequires from "../media/secret_garden/m4aRequires";
 
 // var RNFS = require("react-native-fs");
 // console.log(content);
-
+// let g_repeat_time = global.SettingsStore && global.SettingsStore.g_repeat_time;
+// let global_repeat_times = 1
 let g_media_name, currentSrtArray, current_mp3;
 var mediaStartTime = 0;
 var mediaEndTime = 1000000;
@@ -34,7 +37,20 @@ export default class SecondLevel extends React.Component {
     const params = navigation.state.params;
     return {
       title: params.title,
-      tabBarVisible: params && params.tabBarVisible
+      tabBarVisible: params && params.tabBarVisible,
+      headerRight: (
+        <Icon
+          name="gear"
+          size={28}
+          color="#4F8EF7"
+          style={styles.rigthIcon}
+          onPress={() => {
+            console.log("setting clicked.");
+
+            params.toggleSetting();
+          }}
+        />
+      )
     };
   };
   constructor(props) {
@@ -62,15 +78,11 @@ export default class SecondLevel extends React.Component {
     // current_mp3 = require("../media/secret_garden/01.mp3");
     console.log("current_mp3:", current_mp3);
 
-    this.state = {
-      current_media_name: null,
-      clicked_index: null,
-      currentTime: null,
-      paused: true
-    };
+    this.state = { current_media_name: null, clicked_index: null, currentTime: null, paused: true, SettingisVisible: false, g_repeat_time: 1, currentStyles:'黑底白字' };
   }
-  _repeat_times = global.SettingsStore.g_repeat_time;
+
   _clicked_array = [null, null];
+
   _onLoad = data => {
     console.log("duration:", data.duration);
   };
@@ -86,7 +98,7 @@ export default class SecondLevel extends React.Component {
         this.video.seek(mediaStartTime); //回到开始播放的时间！
       } else {
         this.setState({ paused: true });
-        this._repeat_times = global.SettingsStore.g_repeat_time;
+        this._repeat_times = this.state.g_repeat_time;
       }
     }
   };
@@ -108,7 +120,7 @@ export default class SecondLevel extends React.Component {
     //item.number是从1开始的！
     console.log("item.number", item.number);
     //有了video里面的onpress方法，就得把重复次数写成全局的。
-    this._repeat_times = global.SettingsStore.g_repeat_time;
+    this._repeat_times = this.state.g_repeat_time;
     // console.log(`text${item.number}`, this.textRef);
     this._clicked_array.push(item.number);
     this._clicked_array.shift();
@@ -127,9 +139,17 @@ export default class SecondLevel extends React.Component {
   // shouldComponentUpdate(nextProps, nextState) {
   //   return true
   // }
+  _toggleSetting() {
+    this.setState({ SettingisVisible: !this.state.SettingisVisible });
+  }
+  closeModal() {
+    this.setState({ SettingisVisible: false });
+  }
   componentDidMount() {
+    this._repeat_times = this.state.g_repeat_time;
     this.props.navigation.setParams({
-      tabBarVisible: false
+      tabBarVisible: false,
+      toggleSetting: this._toggleSetting.bind(this)
     });
   }
   componentWillUnmount() {
@@ -143,7 +163,55 @@ export default class SecondLevel extends React.Component {
   render() {
     return (
       <View style={styles.container}>
-        <Text>{global.SettingsStore.g_repeat_time}</Text>x
+        <Modal
+          visible={this.state.SettingisVisible}
+          animationType={"slide"}
+          transparent={true}
+          onRequestClose={() => this.closeModal()}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.innerContainer}>
+              <Text>配色方案：{this.state.currentStyles}</Text>
+              <Button
+                onPress={() => {
+                  //改变CSS的配置方案，只是个切换器而已！
+                  if (styles == stylesOne) {
+                    styles = stylesTwo;
+                    this.setState({ currentStyles: "黑底白字" });
+                  } else {
+                    styles = stylesOne;
+                    this.setState({
+                      currentStyles: "白底黑字"
+                    });
+                  }
+                  this.forceUpdate();
+                }}
+                title="变色"
+              />
+              <Text> 重复次数：{this.state.g_repeat_time}</Text>
+              <View style={styles.settingSlider}>
+                <Slider
+                  minimumValue={1}
+                  maximumValue={10}
+                  step={1}
+                  value={this.state.g_repeat_time}
+                  onValueChange={value => {
+                    // this.setState({ fontSizeValue: value });
+                    this.setState({ g_repeat_time: value });
+                  }}
+                />
+              </View>
+
+              <Button
+                onPress={() => {
+                  this.closeModal();
+                }}
+                title="Close"
+              />
+            </View>
+          </View>
+        </Modal>
+
         <FlatList
           ref={"textList"}
           data={currentSrtArray}
@@ -159,7 +227,7 @@ export default class SecondLevel extends React.Component {
               >
                 {item.number}: {item.english}
               </Text>
-              <Divider style={{ backgroundColor: "blue" }} />
+              <Divider style={styles.divider} />
             </View>
           )}
           keyExtractor={(item, index) => index}
@@ -186,14 +254,17 @@ export default class SecondLevel extends React.Component {
   }
 }
 
-const styles = StyleSheet.create({
+let stylesOne = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: "column"
   },
   item: {
     fontSize: 18,
-    minHeight: 50,
+    minHeight: 50
+  },
+  divider:{
+    backgroundColor:'blue'
   },
   lineView: {
     margin: 5
@@ -203,5 +274,64 @@ const styles = StyleSheet.create({
   },
   normalBack: {
     backgroundColor: "white"
+  },
+  rigthIcon: {
+    marginRight: 16
+  },
+  modalContainer: {
+    flex: 1,
+    // justifyContent: "center",
+    backgroundColor: "grey"
+  },
+  innerContainer: {
+    // alignItems: "center"
+  },
+  settingSlider: {
+    minHeight: 44,
+    // alignItems: "stretch",
+    justifyContent: "center"
   }
 });
+
+let stylesTwo = StyleSheet.create({
+  container: {
+    flex: 1,
+    flexDirection: "column"
+  },
+  item: {
+    fontSize: 18,
+    minHeight: 50,
+    color: "white",
+    backgroundColor: "black"
+  },
+  divider:{
+    backgroundColor: 'grey'
+  },
+  lineView: {
+    margin: 5
+  },
+  clickedBack: {
+    backgroundColor: "rgb(38,79,120)"
+  },
+  normalBack: {
+    backgroundColor: "black"
+  },
+  rigthIcon: {
+    marginRight: 16
+  },
+  modalContainer: {
+    flex: 1,
+    // justifyContent: "center",
+    backgroundColor: "grey"
+  },
+  innerContainer: {
+    // alignItems: "center"
+  },
+  settingSlider: {
+    minHeight: 44,
+    // alignItems: "stretch",
+    justifyContent: "center"
+  }
+});
+
+let styles = stylesOne;
