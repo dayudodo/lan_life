@@ -6,7 +6,7 @@
 
 import React, { Component } from "react";
 import { StackNavigator, TabNavigator } from "react-navigation";
-import CoursesScreen from "./CoursesScreen";
+import LessonScreen from "./LessonScreen";
 import SecondLevel from "./SecondLevel";
 import Settings from './Settings'
 
@@ -14,8 +14,8 @@ import { Platform, StyleSheet, Text, View } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 
 const BookMenu = StackNavigator({
-  CoursesScreen: {
-    screen: CoursesScreen,
+  LessonScreen: {
+    screen: LessonScreen,
     navigationOptions: {
       headerTitle: "选择课程"
     }

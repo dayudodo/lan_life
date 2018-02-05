@@ -17,21 +17,28 @@ import { Divider } from "react-native-elements";
 import Video from "react-native-video";
 import Sound from "react-native-sound";
 import Icon from "react-native-vector-icons/FontAwesome";
+import ProgressBar from "react-native-progress/Bar";
 // Sound.setCategory("Playback");
 // import { content } from "../media/secret_garden/01";
 import srtObjects from "../media/secret_garden/srts";
 import m4aRequires from "../media/secret_garden/m4aRequires";
 
+import { observable, action } from "mobx";
+import { observer } from "mobx-react";
+
 // var RNFS = require("react-native-fs");
 // console.log(content);
 // let g_repeat_time = global.SettingsStore && global.SettingsStore.g_repeat_time;
 // let global_repeat_times = 1
+const CHECK_INTERVAL = 100;
 let g_media_name, currentSrtArray, current_mp3;
-var mediaStartTime = 0;
-var mediaEndTime = 1000000;
+var g_mediaStartTime = 0;
+var g_mediaEndTime = 1000000;
+var g_playTime;
 const freeze_at_end = true; //播放完成后，画面停在end
 var srt = require("./srt").fromString;
 
+@observer
 export default class SecondLevel extends React.Component {
   static navigationOptions = ({ navigation }) => {
     const params = navigation.state.params;
@@ -78,11 +85,19 @@ export default class SecondLevel extends React.Component {
     // current_mp3 = require("../media/secret_garden/01.mp3");
     console.log("current_mp3:", current_mp3);
 
-    this.state = { current_media_name: null, clicked_index: null, currentTime: null, paused: true, SettingisVisible: false, g_repeat_time: 1, currentStyles:'黑底白字' };
+    this.state = {
+      current_media_name: null,
+      clicked_index: null,
+      currentTime: null,
+      paused: true,
+      SettingisVisible: false,
+      g_repeat_time: 1,
+      currentStyles: "黑底白字"
+    };
   }
 
   _clicked_array = [null, null];
-
+  @observable progress_value = 0;
   _onLoad = data => {
     console.log("duration:", data.duration);
   };
@@ -91,11 +106,14 @@ export default class SecondLevel extends React.Component {
   //   this.video.seek(0);
   // };
   _onProgress = data => {
-    if (data.currentTime >= mediaEndTime) {
+    this.progress_value =
+      (data.currentTime - g_mediaStartTime) /
+      (g_mediaEndTime - g_mediaStartTime);
+    if (data.currentTime >= g_mediaEndTime) {
       console.log("mediaEndTimeTime: ", data.currentTime);
       --this._repeat_times;
       if (this._repeat_times > 0) {
-        this.video.seek(mediaStartTime); //回到开始播放的时间！
+        this.video.seek(g_mediaStartTime); //回到开始播放的时间！
       } else {
         this.setState({ paused: true });
         this._repeat_times = this.state.g_repeat_time;
@@ -111,11 +129,16 @@ export default class SecondLevel extends React.Component {
     // text.memoizedProps.style = styles.yellowBack
     // console.log(item, text);
     // return;
-    [mediaStartTime, mediaEndTime] = [
+    [g_mediaStartTime, g_mediaEndTime] = [
       item.startTime / 1000,
       item.endTime / 1000
     ];
-    console.log("mediaStartTime,mediaEndTime: ", mediaStartTime, mediaEndTime);
+    g_playTime = g_mediaEndTime - g_mediaStartTime;
+    console.log(
+      "mediaStartTime,mediaEndTime: ",
+      g_mediaStartTime,
+      g_mediaEndTime
+    );
 
     //item.number是从1开始的！
     console.log("item.number", item.number);
@@ -133,7 +156,7 @@ export default class SecondLevel extends React.Component {
       style: styles.clickedBack
     });
     this.setState({ paused: false }, () => {
-      this.video.seek(mediaStartTime);
+      this.video.seek(g_mediaStartTime);
     });
   }
   // shouldComponentUpdate(nextProps, nextState) {
@@ -180,9 +203,7 @@ export default class SecondLevel extends React.Component {
                     this.setState({ currentStyles: "黑底白字" });
                   } else {
                     styles = stylesOne;
-                    this.setState({
-                      currentStyles: "白底黑字"
-                    });
+                    this.setState({ currentStyles: "白底黑字" });
                   }
                   this.forceUpdate();
                 }}
@@ -243,11 +264,18 @@ export default class SecondLevel extends React.Component {
           volume={1.0}
           controls={false}
           paused={this.state.paused}
-          progressUpdateInterval={100.0}
+          progressUpdateInterval={CHECK_INTERVAL}
           playInBackground={true}
           onLoad={this._onLoad}
           onProgress={this._onProgress}
           onError={this._onError}
+        />
+        <ProgressBar
+          progress={this.progress_value}
+          width={null}
+          height={3}
+          borderRadius={0}
+          useNativeDriver={true}
         />
       </View>
     );
@@ -263,8 +291,8 @@ let stylesOne = StyleSheet.create({
     fontSize: 18,
     minHeight: 50
   },
-  divider:{
-    backgroundColor:'blue'
+  divider: {
+    backgroundColor: "blue"
   },
   lineView: {
     margin: 5
@@ -290,6 +318,12 @@ let stylesOne = StyleSheet.create({
     minHeight: 44,
     // alignItems: "stretch",
     justifyContent: "center"
+  },
+  footer: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0
   }
 });
 
@@ -304,8 +338,8 @@ let stylesTwo = StyleSheet.create({
     color: "white",
     backgroundColor: "black"
   },
-  divider:{
-    backgroundColor: 'grey'
+  divider: {
+    backgroundColor: "grey"
   },
   lineView: {
     margin: 5
@@ -331,6 +365,12 @@ let stylesTwo = StyleSheet.create({
     minHeight: 44,
     // alignItems: "stretch",
     justifyContent: "center"
+  },
+  footer: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0
   }
 });
 

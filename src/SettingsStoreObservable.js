@@ -2,7 +2,6 @@ import { observable, action, computed } from "mobx";
 
 class SettingsStoreObservable {
   @observable g_repeat_time = 1;
-
 //   @action
 //   removeItem(item) {
 //     this.list = this.list.filter(l => {
